@@ -1,9 +1,11 @@
-﻿namespace RsaEncryption.WebApi.Business
+﻿using RsaEncryption.WebApi.Entities;
+
+namespace RsaEncryption.WebApi.Business
 {
     public interface IEncryptionService
     {
-        Task<dynamic> GenerateKey();
-        Task<dynamic> EncryptData(string data);
-        Task<dynamic> DecryptData(string data);
+        Task<KgResponse> GenerateKey();
+        Task<DefaultResponse> EncryptData(string data);
+        Task<DefaultResponse> DecryptData(string data);
     }
 }

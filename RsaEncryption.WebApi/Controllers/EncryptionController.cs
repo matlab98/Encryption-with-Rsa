@@ -28,14 +28,12 @@ namespace RsaEncryption.WebApi.Controllers
         }
 
         [HttpGet("keys")]
-        public IActionResult GetKeys()
+        public async Task<IActionResult> GetKeys()
         {
-            var response = _encryptionService.GenerateKey();
+            var response = await _encryptionService.GenerateKey();
 
             return Ok(response);
         }
-
-
 
         [HttpPost("encryptData")]
         public async Task<IActionResult> EncryptData([FromBody] string data)
