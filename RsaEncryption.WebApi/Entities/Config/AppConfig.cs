@@ -1,7 +1,5 @@
-﻿namespace RsaEncryption.WebApi.Entities.Config
+﻿namespace RsaEncryption.WebApi.Entities.Config;
+public class AppConfig
 {
-    public class AppConfig
-    {
-        public string sizeKey { get; set; }
-    }
+    public string sizeKey { get; set; }
 }
