@@ -1,5 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Parameters;
 using RsaEncryption.WebApi.Entities;
+using RsaEncryption.WebApi.Entities.Config;
+using RsaEncryption.WebApi.Entities.Dto;
 using RsaEncryption.WebApi.Utilities.Cryptography;
 using System.Text;
 
@@ -7,9 +11,16 @@ namespace RsaEncryption.WebApi.Business.ApplicationService;
 
 public class EncryptionService : IEncryptionService
 {
-    public async Task<KgResponse> GenerateKey()
+    private readonly AppConfig _appConfig;
+
+    public EncryptionService(IOptions<AppConfig> appConfig)
     {
-        EncryptionRsa.GenerateRsaKey();
+        _appConfig = appConfig.Value;
+    }
+
+    public async Task<KgResponse> GenerateKey(GenerateRequest request)
+    {        
+        EncryptionRsa.GenerateRsaKey(request);
 
         var publicKeyPem = EncryptionRsa.GetPublicKeyInPemFormat();
         var privateKeyPem = EncryptionRsa.GetPrivateKeyInPemFormat();
@@ -21,11 +32,12 @@ public class EncryptionService : IEncryptionService
         };
     }
 
-    public async Task<DefaultResponse> EncryptData(string data)
+    public async Task<DefaultResponse> EncryptData(string publicKey, string data)
     {
-        EncryptionRsa.GenerateRsaKey();
+        //EncryptionRsa.GenerateRsaKey();
+        RsaKeyParameters pk = EncryptionRsa.ConvertPemToRsaKeyParameters(publicKey);
 
-        var encryptedData = EncryptionRsa.EncryptWithPublicKey(JsonConvert.SerializeObject(data));
+        var encryptedData = EncryptionRsa.EncryptWithPublicKey(pk, JsonConvert.SerializeObject(data));
 
         return new DefaultResponse()
         {
@@ -34,10 +46,11 @@ public class EncryptionService : IEncryptionService
         };
     }
 
-    public async Task<DefaultResponse> DecryptData(string data)
+    public async Task<DefaultResponse> DecryptData(string privateKey, string data)
     {
-        EncryptionRsa.GenerateRsaKey();
-        var decryptedData = EncryptionRsa.DecryptWithPrivateKey(Convert.FromBase64String(data));
+        //EncryptionRsa.GenerateRsaKey();
+        RsaPrivateCrtKeyParameters pk = EncryptionRsa.ConvertPemToRsaPrivateKey(privateKey);
+        var decryptedData = EncryptionRsa.DecryptWithPrivateKey(pk, Convert.FromBase64String(data));
 
         return new DefaultResponse()
         {

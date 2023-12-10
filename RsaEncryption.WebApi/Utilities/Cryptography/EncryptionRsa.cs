@@ -8,6 +8,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.IO.Pem;
 using Org.BouncyCastle.X509;
+using RsaEncryption.WebApi.Entities.Dto;
 using System.Text;
 
 namespace RsaEncryption.WebApi.Utilities.Cryptography;
@@ -16,18 +17,18 @@ public class EncryptionRsa
 {
     private static AsymmetricCipherKeyPair keyPair;
 
-    public static void GenerateRsaKey()
+    public static void GenerateRsaKey(GenerateRequest request)
     {
         if (keyPair == null)
         {
-            GenerateKeyPair();
+            GenerateKeyPair(request);
         }
     }
 
-    private static void GenerateKeyPair()
+    private static void GenerateKeyPair(GenerateRequest req)
     {
         var keyGenerator = GeneratorUtilities.GetKeyPairGenerator("RSA");
-        keyGenerator.Init(new KeyGenerationParameters(new SecureRandom(), 4096));
+        keyGenerator.Init(new KeyGenerationParameters(new SecureRandom(), req.sizeKey));
         keyPair = keyGenerator.GenerateKeyPair();
     }
 
@@ -46,11 +47,31 @@ public class EncryptionRsa
         }
     }
 
+    public static RsaPrivateCrtKeyParameters ConvertPemToRsaPrivateKey(string pemPrivateKey)
+    {
+        StringReader stringReader = new StringReader(pemPrivateKey);
+        PemReader pemReader = new PemReader(stringReader);
+
+        PemObject pemObject = pemReader.ReadPemObject();
+
+        if (!pemObject.Type.Equals("PRIVATE KEY", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("La cadena proporcionada no es una clave privada en formato PEM.");
+
+        AsymmetricKeyParameter privateKeyParam = PrivateKeyFactory.CreateKey(pemObject.Content);
+        RsaPrivateCrtKeyParameters rsaPrivateKeyParameters = privateKeyParam as RsaPrivateCrtKeyParameters;
+
+        if (rsaPrivateKeyParameters == null)
+            throw new InvalidOperationException("La clave proporcionada no es un RsaPrivateCrtKeyParameters.");
+
+        return rsaPrivateKeyParameters;
+    }
+
     public static string GetPublicKeyInPemFormat()
     {
         RsaKeyParameters publicKey = (RsaKeyParameters)keyPair.Public;
         SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(publicKey);
         var pemObject = new PemObject("PUBLIC KEY", publicKeyInfo.ToAsn1Object().GetEncoded());
+
         using (var stringWriter = new StringWriter())
         {
             var pemWriter = new PemWriter(stringWriter);
@@ -60,9 +81,28 @@ public class EncryptionRsa
         }
     }
 
-    public static byte[] EncryptWithPublicKey(string plaintext)
+    public static RsaKeyParameters ConvertPemToRsaKeyParameters(string pemPublicKey)
     {
-        RsaKeyParameters publicKey = (RsaKeyParameters)keyPair.Public;
+        StringReader stringReader = new StringReader(pemPublicKey);
+        PemReader pemReader = new PemReader(stringReader);
+
+        PemObject pemObject = pemReader.ReadPemObject();
+
+        if (!pemObject.Type.Equals("PUBLIC KEY", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("La cadena proporcionada no es una clave pública en formato PEM.");
+
+        AsymmetricKeyParameter publicKeyParam = PublicKeyFactory.CreateKey(pemObject.Content);
+        RsaKeyParameters rsaKeyParameters = publicKeyParam as RsaKeyParameters;
+
+        if (rsaKeyParameters == null)
+            throw new InvalidOperationException("La clave proporcionada no es un RsaKeyParameters.");
+
+        return rsaKeyParameters;
+    }
+
+    public static byte[] EncryptWithPublicKey(RsaKeyParameters publicKey, string plaintext)
+    {
+        //RsaKeyParameters publicKey = (RsaKeyParameters)keyPair.Public;
 
         byte[] plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
 
@@ -73,9 +113,9 @@ public class EncryptionRsa
         return encryptedBytes;
     }
 
-    public static byte[] DecryptWithPrivateKey(byte[] encryptedBytes)
+    public static byte[] DecryptWithPrivateKey(RsaPrivateCrtKeyParameters privateKey, byte[] encryptedBytes)
     {
-        RsaKeyParameters privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
+        //RsaKeyParameters privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
 
         var cipher = CipherUtilities.GetCipher("RSA/ECB/PKCS1Padding");
         cipher.Init(false, privateKey);

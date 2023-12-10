@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RsaEncryption.WebApi</name>
+    </assembly>
+    <members>
+        <member name="F:RsaEncryption.WebApi.Controllers.EncryptionController._encryptionService">
+             <summary>
+            instancia de la interfaz para llamar los Request 
+             </summary>
+        </member>
+        <member name="M:RsaEncryption.WebApi.Controllers.EncryptionController.GetKeys(RsaEncryption.WebApi.Entities.Dto.GenerateRequest)">
+            <summary>
+            Endpoint encargado de generar llaves
+            </summary>
+            <param name="request"> Request parámetro de header para obtener el tamaño de las llaves que se van a crear </param>
+            <remarks></remarks>
+            <response code="200">Consulta realizada con éxito</response>
+            <response code="400">Petición erronea</response>
+            <response code="500">Problemas en la ejecución</response>
+        </member>
+        <member name="M:RsaEncryption.WebApi.Controllers.EncryptionController.EncryptData(System.String,System.String)">
+            <summary>
+            Endpoint encargado de recibir y responder a las peticiones de encriptación
+            </summary>
+            <param name="request"> Request parámetro para encriptar texto con rsa. </param>
+            <remarks></remarks>
+            <response code="200">Consulta realizada con éxito</response>
+            <response code="400">Petición erronea</response>
+            <response code="500">Problemas en la ejecución</response>
+        </member>
+        <member name="M:RsaEncryption.WebApi.Controllers.EncryptionController.DecryptData(System.String,System.String)">
+            <summary>
+            Endpoint encargado de recibir y responder a las peticiones de consulta de los datos
+            </summary>
+            <param name="request"> Request parámetro para desencriptar texto con rsa. </param>
+            <remarks></remarks>
+            <response code="200">Consulta realizada con éxito</response>
+            <response code="400">Petición erronea</response>
+            <response code="500">Problemas en la ejecución</response>
+        </member>
+        <member name="T:RsaEncryption.WebApi.Entities.Dto.GenerateRequest">
+            <summary>
+            Este indica el tamaño de la llave 1024|2048|3072|4096
+            </summary>
+        </member>
+        <member name="P:RsaEncryption.WebApi.Entities.Dto.GenerateRequest.sizeKey">
+            <summary>
+            Este indica el tamaño de la llave 1024|2048|3072|4096
+            </summary>
+        </member>
+    </members>
+</doc>

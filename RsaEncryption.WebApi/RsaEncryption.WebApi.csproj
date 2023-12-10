@@ -1,9 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>D:\I + D\Encryption-with-Rsa\RsaEncryption.WebApi\RsaEncryption.WebApi.xml</DocumentationFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>RSA</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -24,6 +24,10 @@ builder.Services.AddCors(options =>
 // Se crea la variable services para añadir los servicios que se adicionaban con IServiceCollection
 var services = builder.Services.AddMemoryCache();
 
+//Configuraciones de Swagger
+var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -31,6 +35,8 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1_0",
         Title = $"{Assembly.GetExecutingAssembly().GetName().Name}"
     });
+
+    options.IncludeXmlComments(xmlPath);//Configuramos los comentarios en los controladores
 });
 
 
@@ -66,7 +72,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(config =>
+        config.SwaggerEndpoint("/swagger/v1/swagger.json", "API SWAGGER!"));
 }
 
 app.UseCors("MyAllowedOrigins");
